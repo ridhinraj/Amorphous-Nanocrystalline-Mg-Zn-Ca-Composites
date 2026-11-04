@@ -1,0 +1,26 @@
+# voronoi_rerun.in -- per-atom Voronoi volume for selected frames of an existing tension dump.
+# No dynamics are run: `rerun` reads the stored positions and box of each frame.
+#
+#   lmp -in voronoi_rerun.in -var DATA AN_composite_relaxed_300K.data -var SEL frames_selected.dump -var OUT volumes.dump
+#   mpirun -np 40 lmp -in voronoi_rerun.in ...         (serial is also fine; ~1 min per 389k-atom frame)
+#
+# DATA is only used to give LAMMPS the atom count and types; positions come from the dump.
+# Needs the VORONOI package (check:  lmp -h | grep -i voronoi).
+variable DATA index AN_composite_relaxed_300K.data
+variable SEL  index frames_selected.dump
+variable OUT  index volumes.dump
+
+units           metal
+dimension       3
+boundary        p p p
+atom_style      atomic
+atom_modify     map array
+read_data       ${DATA}
+pair_style      zero 6.0
+pair_coeff      * *
+neighbor        4.0 bin
+compute         vor all voronoi/atom
+dump            v all custom 1 ${OUT} id type c_vor[1] c_vor[2]
+dump_modify     v sort id
+thermo_style    custom step atoms vol
+rerun           ${SEL} dump x y z box yes

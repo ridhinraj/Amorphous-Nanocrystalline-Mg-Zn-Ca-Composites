@@ -1,0 +1,31 @@
+include         ../common.mod
+
+variable        a0 equal 3.19          # starting guess only -- box/relax finds the true value
+lattice         hcp ${a0}
+region          box block 0 10 0 10 0 10 units lattice
+create_box      3 box
+create_atoms    1 box                  # type 1 = Mg only
+
+include         ../potential.mod
+
+compute         peatom all pe/atom
+
+fix             1 all box/relax aniso 0.0 vmax 0.001
+min_style       cg
+minimize        1.0e-14 1.0e-14 20000 200000
+unfix           1
+
+variable        a_relaxed equal "lx/10"
+variable        c_relaxed equal "lz/10"
+variable        Ecoh      equal "pe/atoms"
+
+print           "==================================================="
+print           "Relaxed Mg lattice:  a = ${a_relaxed} Ang   c = ${c_relaxed} Ang"
+print           "c/a ratio          = $(v_c_relaxed/v_a_relaxed)"
+print           "Cohesive energy     = ${Ecoh} eV/atom"
+print           "==================================================="
+print           "Compare against literature: a ~ 3.19 Ang, c/a ~ 1.624, Ecoh ~ -1.51 eV/atom"
+print           "PHASE1_RESULT a_relaxed=${a_relaxed} c_relaxed=${c_relaxed} Ecoh=${Ecoh}"
+
+write_data      Mg_hcp_relaxed.data
+write_restart   Mg_hcp_relaxed.restart

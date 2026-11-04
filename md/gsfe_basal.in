@@ -1,0 +1,51 @@
+# ============================================================
+# Basal-plane GSFE, pure Mg. Requires lattice_relax.in to have
+# already run in this same directory (reads its restart file).
+#
+# bshift below is the ACTUAL relaxed a0 from lattice_relax.in's
+# PHASE1_RESULT (3.20906499038793), not the earlier 3.19 guess.
+# ============================================================
+
+variable        bshift  equal 3.20906499038793
+variable        nsteps  equal 20
+
+log             gsfe.log
+
+label           gsfe_loop
+variable        n loop 0 ${nsteps}
+
+  clear
+  include       ../common.mod
+  read_restart  Mg_hcp_relaxed.restart
+  include       ../potential.mod
+
+  change_box    all boundary p p f
+  change_box    all z final $(zlo-15) $(zhi+15) units box
+
+  variable      zmid equal "(zlo+zhi)/2.0"
+  region        lower block EDGE EDGE EDGE EDGE EDGE ${zmid} units box
+  region        upper block EDGE EDGE EDGE EDGE ${zmid} EDGE units box
+  group         lower region lower
+  group         upper region upper
+
+  variable      dx equal "v_bshift*v_n/v_nsteps"
+  displace_atoms upper move ${dx} 0.0 0.0 units box
+
+  fix           1 lower setforce 0.0 0.0 NULL
+  fix           2 upper setforce 0.0 0.0 NULL
+  min_style     cg
+  minimize      1.0e-14 1.0e-14 10000 100000
+
+  variable      etot equal pe
+  variable      area equal "lx*ly"
+  print         "GSFE_POINT n=${n} frac=$(v_n/v_nsteps) E=${etot} Area=${area}"
+
+next            n
+jump            SELF gsfe_loop
+
+# Post-process: gamma(n) = (E(n) - E(0)) / Area, in eV/Ang^2;
+# multiply by 16021.77 to convert to mJ/m^2. The confirmed result
+# from the last run: peak (n=10, frac=0.5) gamma_us ~ 321 mJ/m^2,
+# vs. ~95-120 mJ/m^2 from DFT literature for Mg basal <a> slip --
+# a ~3x gap worth checking against the Jang/Kim/Lee (2018) Mg-Zn
+# paper's own published basal GSFE figure before trusting further.

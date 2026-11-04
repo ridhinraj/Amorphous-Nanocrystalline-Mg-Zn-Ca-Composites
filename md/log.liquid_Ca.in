@@ -1,0 +1,209 @@
+LAMMPS (22 Jul 2025 - Update 4)
+include         ../common.mod
+# ============================================================
+# common.mod -- core settings shared by every LAMMPS script in
+# this project. Include this FIRST, before create_box/read_data.
+# ============================================================
+
+units           metal
+dimension       3
+boundary        p p p
+atom_style      atomic
+atom_modify     map array
+
+# Centralized here so every stage (quench, relax, tension) uses
+# the same neighbor settings
+neighbor        4.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+# NOTE: Ttarget below is a placeholder (1000 K), not confirmed
+# against the specific temperature used in the original Jang,
+# Seol & Lee (2019) CALPHAD liquid-mixing assessment -- that
+# number is buried in a figure in the paper and wasn't found via
+# search. Check the paper directly and adjust before treating
+# results as a real validation rather than a sanity check.
+variable        Ttarget equal 1000.0
+variable        xZn     equal 0.0
+variable        xCa     equal 1.0
+variable        tag     string "Ca"
+
+lattice         fcc 4.5
+Lattice spacing in x,y,z = 4.5 4.5 4.5
+region          box block 0 12 0 12 0 12 units lattice   # 6912 atoms
+create_box      3 box
+Created orthogonal box = (0 0 0) to (54 54 54)
+  1 by 2 by 2 MPI processor grid
+create_atoms    1 box
+Created 6912 atoms
+  using lattice units in orthogonal box = (0 0 0) to (54 54 54)
+  create_atoms CPU = 0.001 seconds
+
+include         ../potential.mod
+# ============================================================
+# potential.mod -- shared interatomic potential definition.
+#
+# ORDERING REQUIREMENT: include this AFTER create_box or
+# read_data, never before -- pair_coeff needs atom types 1/2/3
+# to already exist. (This is why it's a separate file from
+# common.mod, which is included at the very top of every script,
+# before types exist in the melt-quench script.)
+#
+# STILL UNVERIFIED: the "Ca Zn Mg" / "Mg Zn Ca" element-order
+# pairing below is what composition 1 has been running with
+# throughout this project. The second list (Mg Zn Ca) correctly
+# matches the mass assignments (Mg=1, Zn=2, Ca=3). The FIRST
+# list's order needs to match however CaZnMg.meam internally
+# indexes its ternary parameters, and that has never been
+# independently confirmed -- run the Phase 1 pure-Mg cohesive
+# energy / lattice constant check against this exact pair_style
+# line before fully trusting downstream results.
+# ============================================================
+
+mass            1 24.305      # Mg
+mass            2 65.38       # Zn
+mass            3 40.078      # Ca
+
+pair_style      hybrid/overlay meam zbl 1.0 2.0
+pair_coeff      * * meam ../potentials/library.meam Ca Zn Mg ../potentials/CaZnMg.meam Mg Zn Ca
+pair_coeff      1 1 zbl 12.0 12.0
+pair_coeff      1 2 zbl 12.0 30.0
+pair_coeff      1 3 zbl 12.0 20.0
+pair_coeff      2 2 zbl 30.0 30.0
+pair_coeff      2 3 zbl 30.0 20.0
+pair_coeff      3 3 zbl 20.0 20.0
+
+if "${xZn} > 0.0" then   "set type 1 type/fraction 2 ${xZn} 12345"
+if "${xCa} > 0.0" then   "set type 1 type/fraction 3 $(v_xCa/(1.0-v_xZn)) 54321"
+set type 1 type/fraction 3 $(v_xCa/(1.0-v_xZn)) 54321
+set type 1 type/fraction 3 1 54321
+Setting atom values ...
+  6912 settings made for type/fraction
+
+velocity        all create ${Ttarget} 9834 dist gaussian
+velocity        all create 1000 9834 dist gaussian
+
+fix             1 all npt temp ${Ttarget} ${Ttarget} 0.1 iso 0.0 0.0 1.0
+fix             1 all npt temp 1000 ${Ttarget} 0.1 iso 0.0 0.0 1.0
+fix             1 all npt temp 1000 1000 0.1 iso 0.0 0.0 1.0
+timestep        0.001
+thermo          2000
+thermo_style    custom step temp pe press vol density
+run             15000   # melt + equilibrate -- confirmed-safe length at 4 cores; grow only if you confirm more cores are actually granted
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 10
+  ghost atom cutoff = 10
+  binsize = 5, bins = 11 11 11
+  3 neighbor lists, perpetual/occasional/extra = 3 0 0
+  (1) pair meam, perpetual
+      attributes: full, newton on, cut 10
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+  (2) pair meam, perpetual, half/full from (1)
+      attributes: half, newton on
+      pair build: halffull/newton
+      stencil: none
+      bin: none
+  (3) pair zbl, perpetual, copy from (2)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 15.95 | 15.95 | 15.95 Mbytes
+   Step          Temp          PotEng         Press          Volume        Density    
+         0   1000          -91.802747      510290.88      157464         2.9213094    
+      2000   999.19953     -11843.486      332.69112      322963.01      1.424315     
+      4000   997.8243      -11869.965      134.2611       323140.26      1.4235337    
+      6000   1014.0541     -11872.037     -9.6883689      323588.63      1.4215613    
+      8000   990.99433     -11875.857      22.362018      323275.89      1.4229365    
+     10000   1002.5385     -11878.378     -133.73171      323759.97      1.4208089    
+     12000   990.15487     -11880.764     -123.14245      323499.65      1.4219523    
+     14000   982.77909     -11868.981     -124.05292      323700.89      1.4210683    
+     15000   998.31265     -11864.561     -89.289613      323818.72      1.4205511    
+Loop time of 432.781 on 4 procs for 15000 steps with 6912 atoms
+
+Performance: 2.995 ns/day, 8.014 hours/ns, 34.660 timesteps/s, 239.567 katom-step/s
+99.4% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 414.27     | 415.35     | 416.19     |   4.0 | 95.97
+Neigh   | 0.88051    | 0.89029    | 0.90003    |   1.0 |  0.21
+Comm    | 13.84      | 14.711     | 15.783     |  21.2 |  3.40
+Output  | 0.00047341 | 0.00052708 | 0.00067891 |   0.0 |  0.00
+Modify  | 1.4573     | 1.4808     | 1.5078     |   1.5 |  0.34
+Other   |            | 0.3525     |            |       |  0.08
+
+Nlocal:           1728 ave        1732 max        1721 min
+Histogram: 1 0 0 0 0 0 0 1 1 1
+Nghost:           3867 ave        3874 max        3863 min
+Histogram: 1 1 1 0 0 0 0 0 0 1
+Neighs:          72181 ave       72481 max       71775 min
+Histogram: 1 0 0 0 0 1 0 1 0 1
+FullNghs:       144362 ave      144729 max      143806 min
+Histogram: 1 0 0 0 0 0 1 1 0 1
+
+Total # of neighbors = 577448
+Ave neighs/atom = 83.542824
+Neighbor list builds = 121
+Dangerous builds = 0
+unfix           1
+
+# Production/averaging run -- fix 2 keeps NPT integration active
+# through this whole window. Without an active integrator here,
+# fix ave/time just re-samples one frozen configuration repeatedly
+# (confirmed from the previous run's log: identical thermo values
+# at every sampled step, plus the "No fixes with time integration"
+# warning).
+reset_timestep  0
+fix             2 all npt temp ${Ttarget} ${Ttarget} 0.1 iso 0.0 0.0 1.0
+fix             2 all npt temp 1000 ${Ttarget} 0.1 iso 0.0 0.0 1.0
+fix             2 all npt temp 1000 1000 0.1 iso 0.0 0.0 1.0
+variable        peatom equal "pe/atoms"
+fix             avg all ave/time 100 25 2500 v_peatom file liquid_pe_${tag}.dat
+fix             avg all ave/time 100 25 2500 v_peatom file liquid_pe_Ca.dat
+run             5000    # production average -- confirmed-safe length at 4 cores
+Per MPI rank memory allocation (min/avg/max) = 15.96 | 15.96 | 15.96 Mbytes
+   Step          Temp          PotEng         Press          Volume        Density    
+         0   998.31265     -11864.561     -89.289613      323818.72      1.4205511    
+      2000   996.69747     -11886.702     -84.346424      323496.15      1.4219677    
+      4000   997.4753      -11881.863     -55.505325      323510.08      1.4219064    
+      5000   991.38141     -11873.087      37.835756      323373.14      1.4225086    
+Loop time of 136.625 on 4 procs for 5000 steps with 6912 atoms
+
+Performance: 3.162 ns/day, 7.590 hours/ns, 36.597 timesteps/s, 252.956 katom-step/s
+99.5% CPU use with 4 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 126.46     | 130.8      | 135.01     |  35.3 | 95.74
+Neigh   | 0.1895     | 0.19174    | 0.19294    |   0.3 |  0.14
+Comm    | 0.82166    | 5.0355     | 9.3749     | 180.3 |  3.69
+Output  | 0.00019164 | 0.0002051  | 0.0002099  |   0.0 |  0.00
+Modify  | 0.46363    | 0.47061    | 0.47908    |   1.0 |  0.34
+Other   |            | 0.1281     |            |       |  0.09
+
+Nlocal:           1728 ave        1750 max        1712 min
+Histogram: 1 1 0 0 0 1 0 0 0 1
+Nghost:           3867 ave        3883 max        3845 min
+Histogram: 1 0 0 0 1 0 0 0 1 1
+Neighs:          72345 ave       73092 max       71467 min
+Histogram: 1 0 1 0 0 0 0 0 1 1
+FullNghs:       144690 ave      146368 max      143164 min
+Histogram: 1 0 1 0 0 0 0 1 0 1
+
+Total # of neighbors = 578760
+Ave neighs/atom = 83.732639
+Neighbor list builds = 27
+Dangerous builds = 0
+unfix           2
+
+print           "PHASE1_RESULT tag=${tag} xMg=$(1.0-v_xZn-v_xCa) xZn=${xZn} xCa=${xCa}"
+PHASE1_RESULT tag=Ca xMg=0 xZn=0 xCa=1
+print           "Mean PE/atom written to liquid_pe_${tag}.dat"
+Mean PE/atom written to liquid_pe_Ca.dat
+Total wall time: 0:09:29

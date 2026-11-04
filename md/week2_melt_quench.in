@@ -1,0 +1,70 @@
+include         ../common.mod
+variable        Tmelt    equal 1500.0
+variable        Tfinal   equal 300.0
+variable        coolrate equal 1.0e12
+variable        xZn      equal 0.35
+variable        xCa      equal 0.05
+
+lattice         fcc 4.5
+region          box block 0 46 0 46 0 46 units lattice
+create_box      3 box
+
+include         ../potential.mod
+
+create_atoms    1 box
+set             type 1 type/fraction 2 ${xZn} 12345
+set             type 1 type/fraction 3 $(v_xCa/(1.0-v_xZn)) 54321
+
+minimize        1.0e-10 1.0e-10 10000 10000
+
+# Frequent alternating pair: crash-recovery safety net only.
+restart         50000 mq_restart.a mq_restart.b
+
+velocity        all create 300.0 9834 dist gaussian
+fix             1 all npt temp 300.0 ${Tmelt} 0.1 iso 0.0 0.0 5.0
+timestep        0.0005
+thermo          1000
+thermo_style    custom step temp pe press vol density
+run             100000
+unfix           1
+write_restart   ckpt_1_heated.restart
+
+fix             2 all npt temp ${Tmelt} ${Tmelt} 0.1 iso 0.0 0.0 5.0
+run             200000
+unfix           2
+write_restart   ckpt_2_melt_equil.restart
+
+# NOTE: this fix is NPT, not NVT. NVT here was the bug found
+# mid-project -- locking box volume during cooling forces the
+# contracting liquid into an artificially tensile, under-density
+# state as temperature drops. NPT lets volume track density.
+variable        dtcool_ps   equal "(v_Tmelt - v_Tfinal) / v_coolrate * 1.0e12"
+variable        nsteps_cool equal "round(v_dtcool_ps / 0.0005)"
+fix             3 all npt temp ${Tmelt} ${Tfinal} 0.1 iso 0.0 0.0 5.0
+run             ${nsteps_cool}
+unfix           3
+write_restart   ckpt_3_quenched.restart
+
+fix             4 all npt temp ${Tfinal} ${Tfinal} 0.1 iso 0.0 0.0 5.0
+run             100000
+unfix           4
+write_restart   ckpt_4_300K_settle.restart
+
+fix             5 all npt temp 300.0 600.0 0.1 iso 0.0 0.0 5.0
+run             200000
+unfix           5
+
+fix             6 all npt temp 600.0 600.0 0.1 iso 0.0 0.0 5.0
+run             1000000
+unfix           6
+write_restart   ckpt_6_600K_anneal.restart
+
+fix             7 all npt temp 600.0 300.0 0.1 iso 0.0 0.0 5.0
+run             600000
+unfix           7
+
+fix             8 all npt temp 300.0 300.0 0.1 iso 0.0 0.0 5.0
+run             200000
+unfix           8
+
+write_data      quenched_matrix_300K.data

@@ -1,0 +1,8 @@
+﻿*.dump
+*.lammpstrj
+*.bin
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+.venv/

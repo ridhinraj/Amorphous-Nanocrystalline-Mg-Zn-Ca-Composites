@@ -1,0 +1,49 @@
+include         ../common.mod
+
+# NOTE: Ttarget below is a placeholder (1000 K), not confirmed
+# against the specific temperature used in the original Jang,
+# Seol & Lee (2019) CALPHAD liquid-mixing assessment -- that
+# number is buried in a figure in the paper and wasn't found via
+# search. Check the paper directly and adjust before treating
+# results as a real validation rather than a sanity check.
+variable        Ttarget equal 1000.0
+variable        xZn     equal 0.0
+variable        xCa     equal 1.0
+variable        tag     string "Ca"
+
+lattice         fcc 4.5
+region          box block 0 12 0 12 0 12 units lattice   # 6912 atoms
+create_box      3 box
+create_atoms    1 box
+
+include         ../potential.mod
+
+if "${xZn} > 0.0" then &
+  "set type 1 type/fraction 2 ${xZn} 12345"
+if "${xCa} > 0.0" then &
+  "set type 1 type/fraction 3 $(v_xCa/(1.0-v_xZn)) 54321"
+
+velocity        all create ${Ttarget} 9834 dist gaussian
+
+fix             1 all npt temp ${Ttarget} ${Ttarget} 0.1 iso 0.0 0.0 1.0
+timestep        0.001
+thermo          2000
+thermo_style    custom step temp pe press vol density
+run             15000   # melt + equilibrate -- confirmed-safe length at 4 cores; grow only if you confirm more cores are actually granted
+unfix           1
+
+# Production/averaging run -- fix 2 keeps NPT integration active
+# through this whole window. Without an active integrator here,
+# fix ave/time just re-samples one frozen configuration repeatedly
+# (confirmed from the previous run's log: identical thermo values
+# at every sampled step, plus the "No fixes with time integration"
+# warning).
+reset_timestep  0
+fix             2 all npt temp ${Ttarget} ${Ttarget} 0.1 iso 0.0 0.0 1.0
+variable        peatom equal "pe/atoms"
+fix             avg all ave/time 100 25 2500 v_peatom file liquid_pe_${tag}.dat
+run             5000    # production average -- confirmed-safe length at 4 cores
+unfix           2
+
+print           "PHASE1_RESULT tag=${tag} xMg=$(1.0-v_xZn-v_xCa) xZn=${xZn} xCa=${xCa}"
+print           "Mean PE/atom written to liquid_pe_${tag}.dat"
