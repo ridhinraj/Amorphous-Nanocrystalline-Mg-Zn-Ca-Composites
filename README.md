@@ -8,7 +8,7 @@ pure-glass controls, nanocrystal volume fractions of 5–19 % with packing repli
 four strain rates, five temperatures and two single-crystal references. All runs use the 2NN
 MEAM + ZBL Mg-Zn-Ca potential.
 
-**Paper:** R.V. Raj and A. Zagabathuni, *Molecular Dynamics of Peak Strength and Local Ca–Zn Stress
+**Paper:** R. Raj and A. Zagabathuni, *Molecular Dynamics of Peak Strength and Local Ca–Zn Stress
 Asymmetry in Amorphous-Nanocrystalline Mg-Zn-Ca Composites* (submitted). Section numbers below refer
 to that manuscript.
 
