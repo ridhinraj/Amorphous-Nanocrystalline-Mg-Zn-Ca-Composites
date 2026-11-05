@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+title: >-
+  Data and code for: Molecular dynamics of peak strength and local Ca-Zn stress
+  asymmetry in amorphous-nanocrystalline Mg-Zn-Ca composites
+message: If you use this software or data, please cite the paper below.
+type: software
+authors:
+  - given-names: Ridhin V
+    family-names: Raj
+    affiliation: >-
+      Department of Materials Science and Engineering, National Institute of
+      Technology Calicut, India
+  - given-names: Aparna
+    family-names: Zagabathuni
+    email: aparnazagabathuni@nitc.ac.in
+    affiliation: >-
+      Department of Materials Science and Engineering, National Institute of
+      Technology Calicut, India
+repository-code: >-
+  https://github.com/ridhinraj/Amorphous-Nanocrystalline-Mg-Zn-Ca-Composites
+license: MIT
+keywords:
+  - molecular dynamics
+  - metallic glass
+  - Mg-Zn-Ca
+  - amorphous-nanocrystalline composite
+  - LAMMPS
+preferred-citation:
+  type: article
+  title: >-
+    Molecular Dynamics of Peak Strength and Local Ca-Zn Stress Asymmetry in
+    Amorphous-Nanocrystalline Mg-Zn-Ca Composites
+  authors:
+    - given-names: Ridhin V
+      family-names: Raj
+    - given-names: Aparna
+      family-names: Zagabathuni
+  journal: Computational Materials Science
+  year: 2026

@@ -7,15 +7,13 @@
 # common.mod, which is included at the very top of every script,
 # before types exist in the melt-quench script.)
 #
-# STILL UNVERIFIED: the "Ca Zn Mg" / "Mg Zn Ca" element-order
-# pairing below is what composition 1 has been running with
-# throughout this project. The second list (Mg Zn Ca) correctly
-# matches the mass assignments (Mg=1, Zn=2, Ca=3). The FIRST
-# list's order needs to match however CaZnMg.meam internally
-# indexes its ternary parameters, and that has never been
-# independently confirmed -- run the Phase 1 pure-Mg cohesive
-# energy / lattice constant check against this exact pair_style
-# line before fully trusting downstream results.
+# Element ordering: the first list is the order in which library.meam
+# indexes the ternary parameters; the second matches the mass
+# assignments below (Mg=1, Zn=2, Ca=3). This pairing was verified
+# against the HCP Mg lattice parameters, cohesive energy, elastic
+# constants, basal GSFE and liquid mixing enthalpy; the results are in
+# Table 2 and Section 3.1 of the paper, and the inputs are in
+# md/lattice_relax.in, md/elastic/, md/gsfe_basal.in and md/liquid_*.in.
 # ============================================================
 
 mass            1 24.305      # Mg

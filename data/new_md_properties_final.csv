@@ -1,0 +1,24 @@
+case,description,E_GPa,peak_stress_GPa,peak_strain,flow_stress_15pct_GPa,softening_pct,toughness_GJ_m3
+glass0_r5,"pure glass (no seed), matrix run_5",29.1764,1.0686,0.0703,0.8205,23.2204,0.126
+glass0_r1,"pure glass (no seed), matrix run_1",30.8086,1.1774,0.0657,0.893,24.1557,0.1374
+glass0_r6,"pure glass (no seed), matrix run_6",32.5114,1.2597,0.0722,0.9748,22.6131,0.1481
+vf_r5_1,"5 pct VF, 12 A seeds, matrix run_5 (Ca 0.03)",28.2243,1.0113,0.0657,0.7944,21.452,0.1207
+vf_r5_2,"10 pct VF, 12 A seeds, matrix run_5 (Ca 0.03)",27.4282,0.9519,0.0621,0.7768,18.3953,0.1151
+vf_r5_3,"15 pct VF, 12 A seeds, matrix run_5 (Ca 0.03)",26.8738,0.9018,0.0665,0.7544,16.3415,0.11
+rep_r5_a,"10 pct VF, 12 A seeds, matrix run_5, packing a",27.4102,0.9447,0.0628,0.7894,16.4339,0.1151
+rep_r5_b,"10 pct VF, 12 A seeds, matrix run_5, packing b",26.929,0.9462,0.0662,0.7726,18.3549,0.115
+rep_r5_c,"10 pct VF, 12 A seeds, matrix run_5, packing c",26.859,0.9515,0.0674,0.7766,18.3788,0.1145
+rep_r1_a,"10 pct VF, 12 A seeds, matrix run_1, packing a",28.4847,1.0303,0.066,0.8444,18.0427,0.1244
+rep_r1_b,"10 pct VF, 12 A seeds, matrix run_1, packing b",28.704,1.0274,0.0725,0.8444,17.8156,0.1242
+rep_r1_c,"10 pct VF, 12 A seeds, matrix run_1, packing c",28.0935,1.0395,0.0665,0.8493,18.3001,0.1247
+rep_r6_a,"10 pct VF, 12 A seeds, matrix run_6, packing a",29.5058,1.1047,0.0778,0.9093,17.6884,0.1333
+rep_r6_b,"10 pct VF, 12 A seeds, matrix run_6, packing b",30.2015,1.1104,0.0722,0.9169,17.4218,0.1333
+rep_r6_c,"10 pct VF, 12 A seeds, matrix run_6, packing c",29.0006,1.1051,0.0743,0.9111,17.5562,0.1332
+temp_250,"run_1 composite, 250 K, 1e9/s",31.871,1.3151,0.0737,1.0397,20.94,0.157
+temp_300,"run_1 composite, 300 K, 1e9/s",30.5434,1.1656,0.0695,0.8895,23.6859,0.1373
+temp_350,"run_1 composite, 350 K, 1e9/s",29.2954,1.0245,0.0685,0.7757,24.2887,0.12
+temp_400,"run_1 composite, 400 K, 1e9/s",26.4556,0.8853,0.0639,0.6696,24.3573,0.1022
+rate2e9_run4,"run_4 composite, 2e9/s",30.6816,1.2252,0.077,0.9169,25.1661,0.1423
+rate2e9_run3,"run_3 composite, 2e9/s",33.0199,1.377,0.075,1.0721,22.1391,0.1613
+hcp_x,"perfect Mg crystal, tension along [2-1-10] (x)",43.7934,2.5106,0.09,0.9071,63.8672,0.1926
+hcp_z,"perfect Mg crystal, tension along [0001] (z), Stress_Z",54.2413,4.7098,0.1213,0.8772,81.3741,0.373

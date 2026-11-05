@@ -1,0 +1,44 @@
+# ============================================================
+# Week 3 -- Devitrification anneal: nucleate alpha-Mg
+# nanocrystals inside the quenched Mg60Zn35Ca5 glass.
+#
+# Iterate Tanneal / anneal_time_ps across runs to hit target
+# crystalline volume fractions (0/10/20/30/40%). Crystallinity
+# is NOT measured on-the-fly here -- dump snapshots periodically
+# and measure crystalline fraction afterward with
+# analyze_crystallinity.py (OVITO Polyhedral Template Matching),
+# which is more robust than an in-run compute across LAMMPS
+# versions/builds.
+# ============================================================
+include         common.mod
+
+read_data       MgZnCa_glass_1.0e12.data     # pick the cooling-rate case to anneal (from Week 2)
+
+variable        Tanneal          equal 450.0    # K, below Tg -- TUNE per trial
+variable        anneal_time_ps   equal 2000      # ps -- TUNE per trial
+variable        nsteps           equal "round(v_anneal_time_ps / 0.001)"
+variable        dump_every_ps    equal 50
+variable        dump_every_steps equal "round(v_dump_every_ps / 0.001)"
+
+velocity        all create ${Tanneal} 4321 dist gaussian
+fix             1 all npt temp ${Tanneal} ${Tanneal} 0.1 iso 0.0 0.0 1.0
+timestep        0.001
+thermo          5000
+thermo_style    custom step temp pe vol density
+
+# Periodic snapshots for post-hoc crystallinity tracking
+dump            2 all custom ${dump_every_steps} anneal_T${Tanneal}_*.dump id type x y z
+
+print           "Annealing for ${anneal_time_ps} ps (${nsteps} steps) at T=${Tanneal} K"
+run             ${nsteps}
+unfix           1
+undump          2
+
+write_data      MgZnCa_AN_T${Tanneal}_t${anneal_time_ps}.data
+write_dump      all custom MgZnCa_AN_T${Tanneal}_t${anneal_time_ps}_final.dump id type x y z
+
+print           "==================================================="
+print           "Next: run analyze_crystallinity.py on each"
+print           "anneal_T${Tanneal}_*.dump snapshot to find the anneal"
+print           "duration that hits each target volume fraction."
+print           "==================================================="

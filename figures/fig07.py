@@ -1,8 +1,12 @@
-import sys; sys.path.insert(0,"/tmp/w/fig15")
+import os, sys
+ROOT = os.environ.get("MGZNCA_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(ROOT, "data")
+sys.path.insert(0, os.path.join(ROOT, "analysis"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pandas as pd, numpy as np, matplotlib.pyplot as plt, style as S
 S.apply()
-o=pd.read_csv("/mnt/user-data/outputs/stress_strain_properties_all25.csv").set_index("case")
-n=pd.read_csv("/mnt/user-data/outputs/new_md_properties_final.csv").set_index("case")
+o=pd.read_csv(os.path.join(DATA,"stress_strain_properties_all25.csv")).set_index("case")
+n=pd.read_csv(os.path.join(DATA,"new_md_properties_final.csv")).set_index("case")
 g=lambda c,k_o,k_n:(o.loc[c,k_o] if c in o.index else n.loc[c,k_n])
 pk=lambda c:g(c,"yield_strength_GPa","peak_stress_GPa"); so=lambda c:g(c,"softening_pct","softening_pct")
 VF={"vf_r5_1":4.97,"vf_r5_2":10.02,"vf_r5_3":14.98,"vf_1":5.00,"vf_2":10.01,"vf_3":15.01,"vf_25_1":18.49,"vf_20_1":18.91,"vf_r6_1":5.04,"vf_r6_2":10.00,"vf_r6_3":15.04,

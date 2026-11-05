@@ -1,11 +1,15 @@
-import sys; sys.path.insert(0, "/tmp/w/fig15")
+import os, sys
+ROOT = os.environ.get("MGZNCA_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(ROOT, "data")
+sys.path.insert(0, os.path.join(ROOT, "analysis"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 from scipy import stats
 import style as S
 S.apply()
 
 def load(f):
-    d = pd.read_csv("/mnt/user-data/uploads/" + f)
+    d = pd.read_csv(os.path.join(DATA, "interphase", f))
     d["radius"] = d["radius"].astype(str)
     return d
 
