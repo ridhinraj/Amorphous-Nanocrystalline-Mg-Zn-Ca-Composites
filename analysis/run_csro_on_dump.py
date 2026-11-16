@@ -1,3 +1,6 @@
+﻿import os as _o, sys as _s
+_R = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+[_s.path.insert(0, _o.path.join(_R, d)) for d in ("analysis", "ml") if _o.path.join(_R, d) not in _s.path]
 """
 run_csro_on_dump.py
 
@@ -66,3 +69,4 @@ if __name__ == "__main__":
     print(f"  Ca - Zn per-atom alpha difference: "
           f"{np.mean(per_atom_alpha[is_ca]) - np.mean(per_atom_alpha[is_zn]):+.4f}  "
           f"(Mann-Whitney p={p:.2e})")
+

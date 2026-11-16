@@ -1,3 +1,6 @@
+﻿import os as _o, sys as _s
+_R = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+[_s.path.insert(0, _o.path.join(_R, d)) for d in ("analysis", "ml") if _o.path.join(_R, d) not in _s.path]
 import re, warnings, numpy as np, pandas as pd
 import gp_heldout as H
 np.random.seed(0)
@@ -34,3 +37,4 @@ o=pd.DataFrame(out); pd.set_option("display.width",200); print(o.to_string(index
 o.to_csv("/tmp/a1/heldout_predictions.csv",index=False)
 print("\nsummary by group (mean abs % error, coverage 95%):")
 for g,x in o.groupby("group"): print(" %-24s n=%d  MAE %.1f%%  inside95 %d/%d  mean sigma %.3f"%(g,len(x),x.err_pct.abs().mean(),x.inside95.sum(),len(x),x.sigma.mean()))
+

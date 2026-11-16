@@ -1,3 +1,6 @@
+﻿import os as _o, sys as _s
+_R = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+[_s.path.insert(0, _o.path.join(_R, d)) for d in ("analysis", "ml") if _o.path.join(_R, d) not in _s.path]
 #!/usr/bin/env python3
 """
 combined_regression.py -- does adding local-structure descriptors improve the per-atom stress regression, and how much of
@@ -178,3 +181,4 @@ if __name__ == "__main__":
     fr = fl.read_frame(a.dump, info)
     vol = load_volumes(a.volumes, info["timestep"], fr["id"]) if a.volumes else None
     analyze(fr, expect_r2A=None if a.volumes else a.expect_r2A, out=a.out, vol=vol)
+

@@ -1,3 +1,6 @@
+﻿import os as _o, sys as _s
+_R = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+[_s.path.insert(0, _o.path.join(_R, d)) for d in ("analysis", "ml") if _o.path.join(_R, d) not in _s.path]
 """
 find_seed_centers.py
 
@@ -164,3 +167,4 @@ if __name__ == "__main__":
         assert center_error < 2.0, f"FAIL: center error too large ({center_error:.2f} Ang)"
         assert radius_error < 3.0, f"FAIL: radius error too large ({radius_error:.2f} Ang)"
         print("PASS: seed correctly identified, with center and radius both close to ground truth.")
+

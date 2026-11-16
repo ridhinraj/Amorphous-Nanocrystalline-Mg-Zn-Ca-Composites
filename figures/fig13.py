@@ -1,3 +1,6 @@
+﻿import os as _o, sys as _s
+_R = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+[_s.path.insert(0, _o.path.join(_R, d)) for d in ("analysis", "ml") if _o.path.join(_R, d) not in _s.path]
 import os, sys
 ROOT = os.environ.get("MGZNCA_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
@@ -25,7 +28,7 @@ S.panel(a,"a",f"Leave-one-out ({(~inf.out).sum()}/{len(inf)} within 95%)")
 from matplotlib.lines import Line2D
 a.legend(handles=[Line2D([],[],marker="o",ls="",color="#222",ms=4.2,label="within 95% interval"),Line2D([],[],marker="o",ls="",color="#222",mfc="white",mew=1.1,ms=4.2,label="outside 95% interval")],loc="upper left")
 # (b) frozen-surrogate tests
-grp={"VF = 0 (pure glass)":("glass0",S.GLASS,"D"),"5–15% VF, Ca 0.03":("vf_r5",S.VF5[2],"o"),"10% packings, Ca 0.03":("rep_r5",S.VF5[1],"s"),"10% packings, Ca 0.07":("rep_r6",S.VF5[3],"^"),"2×10$^9$ s$^{-1}$, two new compositions":("rate2e9",S.RATE["5e8"],"P")}
+grp={"VF = 0 (pure glass)":("glass0",S.GLASS,"D"),"5â€“15% VF, Ca 0.03":("vf_r5",S.VF5[2],"o"),"10% packings, Ca 0.03":("rep_r5",S.VF5[1],"s"),"10% packings, Ca 0.07":("rep_r6",S.VF5[3],"^"),"2Ã—10$^9$ s$^{-1}$, two new compositions":("rate2e9",S.RATE["5e8"],"P")}
 b.plot(lim,lim,"-",color="#999",lw=0.8,zorder=0)
 for name,(key,col,m) in grp.items():
     sub=ho[ho.case.str.startswith(key)]
@@ -40,3 +43,4 @@ b.set_xlabel("Simulated peak strength (GPa)"); b.set_ylabel("Predicted (GPa)"); 
 hs=[Line2D([],[],marker=m,ls="",color=col,mec="#222",mew=0.4,ms=4.6,label=name) for name,(key,col,m) in grp.items()]+[Line2D([],[],marker="*",ls="",color="#444",ms=6.5,label="18.5%, 18.9% VF (13-point model)"),Line2D([],[],marker="o",ls="",color="#222",mfc="white",mew=1.1,ms=4.2,label="open: outside 95% interval")]
 b.legend(handles=hs,loc="upper left",handlelength=1.0,labelspacing=0.3,fontsize=6.4)
 fig.tight_layout(w_pad=1.5); S.save(fig,"fig13_surrogate")
+
