@@ -18,9 +18,14 @@ to that manuscript.
 |---|---|
 | `md/` | LAMMPS inputs: melt–quench, relax, tension at four rates and five temperatures, GSFE, liquid mixing, lattice relaxation, elastic constants, Voronoi re-run |
 | `md/submit/` | SLURM submission and status scripts for the two campaigns |
+| `md/new_md_package/` | Case generation and collection scripts for the second-campaign runs (packing replicates, temperature series, extra strain rates, crystal references) |
+| `md/potential_checks/` | Post-processing for potential validation: GSFE and mixing-energy curves |
+| `md/elastic/` | LAMMPS inputs for the elastic-constant calculation |
 | `analysis/` | Python analysis: RDF, D²min, bond-orientational and chemical short-range order, interphase shells, per-atom stress regression, SHAP, Gaussian process surrogate, shear-band detection |
+| `analysis/voronoi_volume/` | Voronoi tessellation volume analysis (see `README_VORONOI.md` there) |
+| `ml/` | Gaussian-process surrogate (`gp_heldout.py`, `gp_active_learning.py`), the combined regression model, and the SHAP scripts for multiframe/solute analysis |
 | `figures/` | Scripts that draw the manuscript figures, and the rendered files |
-| `data/` | Stress–strain curves, the per-case property table of all 48 runs, and the summary tables behind the figures |
+| `data/` | Stress–strain curves for all 48 runs, the per-case property table (`Table_S1_all48.csv`), D²min and interphase data, and the summary tables behind the figures |
 | `docs/` | The second-campaign planning document |
 
 ## Reproducing a run
