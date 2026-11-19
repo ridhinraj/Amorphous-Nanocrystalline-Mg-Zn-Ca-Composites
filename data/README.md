@@ -18,9 +18,9 @@ available from the corresponding author on request.
 | `d2min/` | Per-frame D²min cluster summaries, cumulative and incremental, for the cases analysed in Section 3.5 (Fig. 9). |
 | `interphase/` | Per-seed interphase-to-bulk D²min ratios for B5 and B15 at each strain (Fig. 10, Supplementary Table S8). |
 
-## Still to add
+## Not included
 
-- **Per-atom Voronoi volumes** for the thirteen configurations analysed in Section 3.6. The paper's
-  Data availability sentence promises these. They are produced by the tooling in
-  `analysis/voronoi_volume/` (`voronoi_rerun.in`, `voronoi_py.py`); either add the per-atom files or,
-  if they are too large, change the manuscript sentence to say they are available on request.
+- **Per-atom Voronoi volumes** for the thirteen configurations analysed in Section 3.6. Like the raw
+  trajectory dumps, these are large and are available from the corresponding author on request, which
+  is what the paper's Data availability statement says. They are reproduced by the tooling in
+  `analysis/voronoi_volume/` (`voronoi_rerun.in`, `voronoi_py.py`).
